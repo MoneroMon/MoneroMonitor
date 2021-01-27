@@ -1,5 +1,5 @@
-﻿using System;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 
 namespace MoneroMonitor
@@ -16,10 +16,10 @@ namespace MoneroMonitor
 
         public static IEnumerable<IConfigurationSection> GetMiners()
         {
-            IEnumerable<IConfigurationSection> a;
+            IEnumerable<IConfigurationSection> miners;
             try
             {
-                a = config.GetSection("MinerInstances").GetChildren();
+                miners = config.GetSection("MinerInstances").GetChildren();
             }
             catch
             {
@@ -27,7 +27,7 @@ namespace MoneroMonitor
                     "Please check formatting is correct and there is at least one in there.");
                 return null;
             }
-            return a;
+            return miners;
         }
 
         public bool IdIsValid(int idToCheck)
@@ -68,6 +68,20 @@ namespace MoneroMonitor
                 }
             }
             return ids;
+        }
+
+        public static string GetTelegramBotToken()
+        {
+            string token = config["BotToken"];
+            if (token != null)
+            {
+                return token;
+            }
+            else
+            {
+                Console.WriteLine("Unable to read token from config file.");
+                return null;
+            }
         }
     }
 }

@@ -1,14 +1,9 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Diagnostics;
-using System.Threading.Tasks;
-using Telegram.Bot;
+using System.Threading;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.ReplyMarkups;
-using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
-using System.Threading;
-using MoneroMonitor;
 
 namespace MoneroMonitor
 {
@@ -36,7 +31,7 @@ namespace MoneroMonitor
         private static State MinerSetupState = State.noChatId;
         private static BotManager botManager;
         private static Config config;
-        private static DateTime LastStarted = new DateTime(1970,01,01);
+        private static DateTime LastStarted = new DateTime(1970, 01, 01);
 
         static void Main()
         {
@@ -44,16 +39,10 @@ namespace MoneroMonitor
             botManager = new BotManager(config);
             botManager.bot.OnMessage += Bot_OnMessage;
 
-            MinerMonitorMain();
-        }
-
-        static void MinerMonitorMain()
-        {
             while (MinerSetupState != State.readyToStart)
             {
-                Thread.Sleep(500);
+                Thread.Sleep(5000);
             }
-            InitiateMiningProcess();
 
             while (true)
             {
@@ -70,32 +59,31 @@ namespace MoneroMonitor
 
         private static void CheckIfStoppedAndRestart()
         {
-            if (miningProcess.HasExited && MinerSetupState != State.stopped)
+            if (miningProcess.HasExited && MinerSetupState == State.readyToStart)
             {
-                _ = botManager.SendMessage("Program crashed (or was stopped manually).");
+                botManager.SendMessage("Program crashed (or was stopped manually).");
                 Console.WriteLine("Program crashed (or was stopped manually).");
-                InitiateMiningProcess();
-                Thread.Sleep(5000);
+                InitiateMiningProcess(false);
             }
         }
 
-        private static void InitiateMiningProcess()
+        private static void InitiateMiningProcess(bool manualStart)
         {
-            if (LastStarted > (DateTime.Now - new TimeSpan(0, 2, 0)))
+            if (LastStarted > (DateTime.Now - new TimeSpan(0, 2, 0)) && !manualStart && MinerSetupState == State.readyToStart)
             {
                 Console.WriteLine("Started too shortly ago. Waiting for a while to avoid spamming the server.");
-                _ = botManager.SendMessage("Started too shortly ago. Waiting for a little while to avoid spamming the server.");
+                botManager.SendMessage("Started too shortly ago. Waiting for a little while to avoid spamming the server.");
                 Thread.Sleep(new TimeSpan(0, 2, 0));
             }
-            _ = botManager.SendMessage($"Starting Mining Process. Current mode for sending messages is {monitorMode}");
-            miningProcess.StartInfo.UseShellExecute = false;
-            miningProcess.StartInfo.RedirectStandardOutput = true;
-            miningProcess.StartInfo.Verb = "runas";
-            if (MinerSetupState == State.readyToStart)
+            if (manualStart || MinerSetupState == State.readyToStart)
             {
+                botManager.SendMessage($"Starting Mining Process. Current mode for sending messages is {monitorMode}");
+                miningProcess.StartInfo.UseShellExecute = false;
+                miningProcess.StartInfo.RedirectStandardOutput = true;
+                miningProcess.StartInfo.Verb = "runas";
                 miningProcess.Start();
+                LastStarted = DateTime.Now;
             }
-            LastStarted = DateTime.Now;
         }
 
         private static void ProcessLineRead(string lineRead)
@@ -108,7 +96,7 @@ namespace MoneroMonitor
 
             if (monitorMode == MonitorMode.all)
             {
-                _ = botManager.SendMessage($"{lineRead}");
+                botManager.SendMessage($"{lineRead}");
             }
             else if (monitorMode == MonitorMode.errorOnly)
             {
@@ -118,16 +106,16 @@ namespace MoneroMonitor
                     && !lineReadLowerCase.Contains("new job from");
                 if (containsAbnormalPhrase)
                 {
-                    _ = botManager.SendMessage($"{lineRead}");
+                    botManager.SendMessage($"{lineRead}");
                 }
                 else if (lineReadLowerCase.Contains("error") || lineReadLowerCase.Contains("rejected"))
                 {
-                    _ = botManager.SendMessage($"{lineRead}");
+                    botManager.SendMessage($"{lineRead}");
                 }
                 else if (lineRead.Contains(MsrFail))
                 {
                     Console.WriteLine(MsrFail);
-                    _ = botManager.SendMessage($"{MsrFail}");
+                    botManager.SendMessage($"{MsrFail}");
                 }
             }
         }
@@ -144,7 +132,7 @@ namespace MoneroMonitor
 
                         botManager.chatId = e.Message.Chat.Id;
                         MinerSetupState = State.noMiner;
-                        _ = botManager.SendMessage("Registered your chat ID.");
+                        botManager.SendMessage("Registered your chat ID.");
                         botManager.ChooseMiner();
                     }
                     else
@@ -159,14 +147,15 @@ namespace MoneroMonitor
                                         if (e.Message.Text.ToLower() == miner.Key.ToLower())
                                         {
                                             miningProcess.StartInfo.FileName = miner.Value;
-                                            _ = botManager.SendMessage($"Selecting {miner.Key}");
+                                            botManager.SendMessage($"Selecting {miner.Key}");
+                                            InitiateMiningProcess(true);
                                             MinerSetupState = State.readyToStart;
                                             break;
                                         }
                                     }
                                     if (MinerSetupState != State.readyToStart)
                                     {
-                                        _ = botManager.SendMessage("Not a valid answer");
+                                        botManager.SendMessage("Not a valid answer");
                                         botManager.ChooseMiner();
                                     }
                                     break;
@@ -201,38 +190,38 @@ namespace MoneroMonitor
 
             if (incomingText == "stop")
             {
-                _ = botManager.SendMessage("Okay.");
+                botManager.SendMessage("Okay.");
                 miningProcess.Kill();
                 MinerSetupState = State.stopped;
             }
             else if (incomingText == "restart")
             {
-                _ = botManager.SendMessage("Okay.");
+                botManager.SendMessage("Okay.");
                 miningProcess.Kill();
             }
             else if (incomingText == "start")
             {
-                _ = botManager.SendMessage("Okay.");
+                botManager.SendMessage("Okay.");
                 MinerSetupState = State.readyToStart;
             }
             else if (incomingText == "show all")
             {
-                _ = botManager.SendMessage("Okay, I can do that.");
+                botManager.SendMessage("Okay, I can do that.");
                 monitorMode = MonitorMode.all;
             }
             else if (incomingText == "show errors only")
             {
-                _ = botManager.SendMessage("Okay, I can do that.");
+                botManager.SendMessage("Okay, I can do that.");
                 monitorMode = MonitorMode.errorOnly;
             }
             else if (incomingText == "show restarts only")
             {
-                _ = botManager.SendMessage("Okay, I can do that.");
+                botManager.SendMessage("Okay, I can do that.");
                 monitorMode = MonitorMode.restartOnly;
             }
             else if (incomingText == "change miner")
             {
-                _ = botManager.SendMessage("Okay, I can do that.");
+                botManager.SendMessage("Okay, I can do that.");
                 MinerSetupState = State.noMiner;
                 miningProcess.Kill();
                 botManager.ChooseMiner();
@@ -241,16 +230,16 @@ namespace MoneroMonitor
             {
                 if (lastSpeed != null)
                 {
-                    _ = botManager.SendMessage(lastSpeed);
+                    botManager.SendMessage(lastSpeed);
                 }
                 else
                 {
-                    _ = botManager.SendMessage("There hasn't been one yet.");
+                    botManager.SendMessage("There hasn't been one yet.");
                 }
             }
             else
             {
-                _ = botManager.SendMessage("Not a recognised command.");
+                botManager.SendMessage("Not a recognised command.");
             }
         }
 

@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Threading.Tasks;
 using Telegram.Bot;
-using Telegram.Bot.Types;
-using Microsoft.Extensions.Configuration;
 using Telegram.Bot.Args;
+using Telegram.Bot.Types;
 
 namespace MoneroMonitor
 {
@@ -19,7 +19,7 @@ namespace MoneroMonitor
             this.config = config;
 
             //Setup bot client
-            bot = new TelegramBotClient("1584797168:AAFVuA_FvbkJW2L0cO_4FXK1bHCjSasEyVI");
+            bot = new TelegramBotClient(Config.GetTelegramBotToken());
             var me = bot.GetMeAsync().Result;
             Console.WriteLine($"Starting bot {me.Id} with name of {me.FirstName}.");
             bot.StartReceiving();
@@ -56,7 +56,7 @@ namespace MoneroMonitor
             {
                 minersToSend += $"{miner.Key} \n";
             }
-            if (minersToSend != null)
+            if (minersToSend != "")
             {
                 _ = bot.SendTextMessageAsync(chatId: chatId, text: minersToSend);
             }
@@ -64,16 +64,16 @@ namespace MoneroMonitor
             {
                 _ = bot.SendTextMessageAsync(chatId: chatId, text: "No miners in config file! You need to put some in first.");
             }
-            
+
         }
 
-        public async Task SendMessage(string message)
+        public void SendMessage(string message)
         {
             if (chatId != null)
             {
                 if (message != null && message.Length > 0)
                 {
-                    await bot.SendTextMessageAsync(chatId: chatId, message);
+                    _ = bot.SendTextMessageAsync(chatId: chatId, message);
                 }
             }
             else
