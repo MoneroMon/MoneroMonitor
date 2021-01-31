@@ -1,0 +1,8 @@
+{
+  "MinerInstances": {
+    "MoneroOcean": "paste path here",
+    "SupportXMR": "paste another here or delete this line and remove the comma from the end of the line above"
+  },
+  "AllowedTelegramUserIds": [  ],
+  "BotToken": "paste here"
+}
