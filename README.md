@@ -22,3 +22,6 @@ The program works by making use of a telegram bot. You have to create a telegram
 Only Windows 10 64 bit has been tested but you're welcome to try on other operating systems.
 
 This program is written for .NET 5 so you will need to have it installed. You only need the runtime, not SDK. https://dotnet.microsoft.com/download
+
+# Disclaimer
+This program is still in development and no guarantees are provided that it will work correctly, or that updates won't break things!
