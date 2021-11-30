@@ -15,8 +15,24 @@ The program works by making use of a telegram bot. You have to create a telegram
 # Setup
 1. Create a telegram bot. For this you need the telegram app on your phone. This is a good guide: https://docs.microsoft.com/en-us/azure/bot-service/bot-service-channel-connect-telegram?view=azure-bot-service-4.0. You only need to follow it until you get the token.
 2. Once you have the token, copy it into the config file.
-3. Setup your ID in the whitelist. This is needed so that other people can't access your bot and control the miner. To do this, send a message to the bot once you have the program setup with the token and running. The message should come up in the console with your ID. Copy this ID into the config file and save it. 
-3. Set the path of the miner. Find the exe and copy the path into the setup file. You can set multiple miners up. The bot will ask you which one to use when it starts up. You can also give them a name.
+3. Start MoneroMonitor
+4. Add your bot on telegram and send it a message.
+5. Setup your ID in the whitelist. This is needed so that other people can't access your bot and control the miner. The message you sent in the last step should come up in the console with your ID. Copy this ID into the config file and save it. 
+6. Set the path of the miner. Find the exe and copy the path into the setup file. You can set multiple miners up. The bot will ask you which one to use when it starts up. You can also give them a name. You have to replace all \ characters in the file path with \\ otherwise it will throw an error.
+
+# How to use
+Follow setup then run the program as administrator (this is so it can start XMRig as administrator and get it to apply MSR mod).
+Check your phone and select a miner to start.
+You should see all the startup messages from XMRig appear as messages.
+You can send the following commands:
+- Stop
+- Start
+- Restart
+- Show all. This causes the program to send every console line that XMRig generates as a message to your phone. You probably don't want to leave this on all the time.
+- Show errors only. This filters out certain lines for routine operations and only sends errors as a message to your phone.
+- show restarts only
+- change miner
+- last speed. This shows the last hashrate.
 
 # Supported plaforms.
 Only Windows 10 64 bit has been tested but you're welcome to try on other operating systems.
