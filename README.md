@@ -1,9 +1,9 @@
-# MoneroMon
+# MoneroMonitor
 This program interfaces with XMRig to allow you to control basic functions of the miner from your phone. It also sends you messages from the XMRig console and can filter which ones you get sent, such as only errors. This allows you to set it up and then not worry about checking your miner is still working - you'll get a message if there's a problem (except if the computer the miner is running on loses internet connection, power, or this program is shut - in that case it can't send you a message!) However if your internet goes down you'll still get notified about it once it is back up.
 
-MoneroMon is mainly useful for monitoring if there's a problem with the pool or if your shares are getting rejected because of some unstable overclocking. 
+MoneroMonitor is mainly useful for monitoring if there's a problem with the pool or if your shares are getting rejected because of some unstable overclocking. 
 
-The program works by making use of a telegram bot. You have to create a telegram bot yourself and then copy the token it gives into the config.json file of MoneroMon. You also have to add your ID to the allowed list. This is to stop others from acessing your bot and controlling your miner. 
+The program works by making use of a telegram bot. You have to create a telegram bot yourself and then copy the token it gives into the config.json file of MoneroMonitor. You also have to add your ID to the allowed list. This is to stop others from accessing your bot and controlling your miner. 
 
 # Features
 - Choose from multiple instances of XMRig. You can copy your XMRig folder and have it setup for different pools in case one goes down. You can then change the pool from your phone.
